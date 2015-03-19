@@ -1,0 +1,20 @@
+<launch>
+
+  <!-- joy node -->
+  <node respawn="true" pkg="joy"
+        type="joy_node" name="ardrone_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.12" />
+  </node>
+
+  <!-- gazebo Node-->
+  <include file="$(find cvg_sim_gazebo)/launch/ardrone_testworld.launch" />
+
+  <node pkg="image_view" type="image_view" name="front_camera">
+  	<remap from="image" to="/ardrone/front/image_raw" />
+  </node>
+
+  <!-- controller node -->
+  <node pkg="leapdrone_ardrone_sim" type="test_launch" name="leapdrone" output="screen" /> 
+
+</launch>
