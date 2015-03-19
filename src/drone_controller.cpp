@@ -61,7 +61,6 @@ public:
 
 	~DroneController ()
 	{
-		land();
 	}
 
 	void takeoff ()
@@ -88,7 +87,6 @@ public:
 
 	void sendCmdVel ()
 	{
-		
 		if (status_ == FLYING || status_ == HOVERING || status_ == GOTOHOVER)
 			pub_cmdvel_.publish(cmdvel_);
 	}
@@ -135,7 +133,7 @@ public:
 
 		if (joy->buttons[1])
 		{
-			ROS_INFO("Land...");
+			ROS_INFO("Landing...");
 			land();
 		}
 

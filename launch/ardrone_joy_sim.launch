@@ -15,6 +15,6 @@
   </node>
 
   <!-- controller node -->
-  <node pkg="leapdrone_ardrone_sim" type="test_launch" name="leapdrone" output="screen" /> 
+  <node pkg="ardrone_leapjoy" type="drone_controller" name="leapdrone" output="screen" /> 
 
 </launch>
