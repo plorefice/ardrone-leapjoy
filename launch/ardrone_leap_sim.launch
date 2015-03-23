@@ -1,12 +1,5 @@
 <launch>
 
-  <!-- joy node -->
-  <node respawn="true" pkg="joy"
-        type="joy_node" name="ardrone_joy" >
-    <param name="dev" type="string" value="/dev/input/js0" />
-    <param name="deadzone" value="0.12" />
-  </node>
-
   <!-- gazebo Node-->
   <include file="$(find cvg_sim_gazebo)/launch/ardrone_testworld.launch" />
 
@@ -15,8 +8,8 @@
   </node>
 
   <!-- controller node -->
+  <param name="controller" value="leap" />
   <node pkg="ardrone_leapjoy" type="drone_controller" name="leapdrone" output="screen">
-    <param name="controller" value="joypad" />
   </node>
 
 </launch>

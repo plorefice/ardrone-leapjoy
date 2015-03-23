@@ -4,6 +4,23 @@
 #include <geometry_msgs/Twist.h>
 #include <ardrone_autonomy/Navdata.h>
 
+#include <boost/asio.hpp>
+#include <boost/array.hpp>
+
+using boost::asio::ip::udp;
+
+struct LeapFrameInfo
+{
+    int64_t id;
+    int64_t ts;
+    
+    float height;
+    float roll;
+    float pitch;
+    
+    bool leftIndexTap;
+};
+
 enum DroneStatus
 {
 	EMERGENCY = 0,
@@ -16,6 +33,12 @@ enum DroneStatus
 	GOTOHOVER = 7,
 	LANDING   = 8,
 	LOOPING   = 9
+};
+
+enum DroneInput
+{
+	JOYPAD = 0,
+	LEAPMOTION = 1
 };
 
 class DroneController
@@ -35,19 +58,50 @@ private:
 	geometry_msgs::Twist cmdvel_;
 
 	DroneStatus status_;
+	DroneInput controller_;
+
+	boost::asio::io_service ios_;
+    udp::socket sock_;
 
 public:
 	DroneController ()
 	: status_(EMERGENCY)
+	, controller_(JOYPAD)
+	, ios_()
+	, sock_(ios_, udp::endpoint(udp::v4(), 45002))
 	{
+		std::string ctrlType;
+		if (node_.getParam("controller", ctrlType))
+		{
+			ROS_INFO("Controller: %s", ctrlType.c_str());
+
+			if (ctrlType == "joypad")
+			{
+				controller_ = JOYPAD;
+			}
+			else if (ctrlType == "leap")
+			{
+				controller_ = LEAPMOTION;
+			}
+		}
+		else
+		{
+			ROS_INFO("No input method specified, fallback joypad");
+			node_.param<std::string>("controller", ctrlType, "joypad");
+		}
+
 		pub_takeoff_ = node_.advertise<std_msgs::Empty>("/ardrone/takeoff", 1);
 		pub_land_ = node_.advertise<std_msgs::Empty>("/ardrone/land", 1);
 		pub_reset_ = node_.advertise<std_msgs::Empty>("/ardrone/reset", 1);
 		pub_trim_ = node_.advertise<std_msgs::Empty>("/ardrone/flattrim", 1);
 		pub_cmdvel_ = node_.advertise<geometry_msgs::Twist>("/cmd_vel", 1);
 
-		sub_joy_ = node_.subscribe<sensor_msgs::Joy>(
-			"joy", 1, &DroneController::joyCallback, this);
+		if (controller_ == JOYPAD)
+		{
+			sub_joy_ = node_.subscribe<sensor_msgs::Joy>(
+				"joy", 1, &DroneController::joyCallback, this);
+		}
+
 		sub_navdata_ = node_.subscribe<ardrone_autonomy::Navdata>(
 			"/ardrone/navdata", 1, &DroneController::getNavdata, this);
 
@@ -74,6 +128,14 @@ public:
 		pub_land_.publish(std_msgs::Empty());
 	}
 
+	void toggleFlight()
+	{
+		if (status_ == LANDED)
+			takeoff();
+		else
+			land();
+	}
+
 	void reset ()
 	{
 		pub_reset_.publish(std_msgs::Empty());
@@ -93,6 +155,34 @@ public:
 
 	void step ()
 	{
+		if (controller_ == LEAPMOTION)
+		{
+			boost::array<LeapFrameInfo, 1> recv_buf;
+	        udp::endpoint remote_endpoint;
+	        boost::system::error_code error;
+	        size_t len = sock_.receive_from(
+	                                        boost::asio::buffer(recv_buf),
+	                                        remote_endpoint);
+
+	        LeapFrameInfo frame = recv_buf.at(0);
+
+            if (frame.leftIndexTap)
+            {
+            	ROS_INFO("TAP");
+            	toggleFlight();
+            }
+
+			cmdvel_.linear.x = (-frame.pitch) / M_PI_2;
+			cmdvel_.linear.y = (frame.roll) / M_PI_2;
+			cmdvel_.linear.z = -1 * (1.0 - frame.height / 250.0);
+
+			//std::cout
+			//<< "VX: " << cmdvel_.linear.x << std::endl
+			//<< "VY: " << cmdvel_.linear.y << std::endl
+			//<< "VZ: " << cmdvel_.linear.z << std::endl;
+			
+		}
+
 		switch(status_)
 		{
 		case TAKINGOFF:
