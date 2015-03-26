@@ -5,9 +5,13 @@ JoypadInterface::JoypadInterface(ros::NodeHandle & n)
 , prevJoy_()
 , nextData_()
 {
+	/* Initialize joypad struct */
+	prevJoy_.buttons.resize(10);
+	prevJoy_.axes.resize(6);
+
 	/* Receive joypad messages */
 	sub_joy_ = nh_.subscribe<sensor_msgs::Joy>(
-		"joy", 10, &JoypadInterface::joyCallback, this);
+		"joy", 1, &JoypadInterface::joyCallback, this);
 
 	ROS_INFO("Joypad created.");
 }
