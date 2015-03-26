@@ -9,8 +9,6 @@
   </node>
 
   <!-- drone node -->
-  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">
-  	<param name="controller" value="leap"/>
-  </node>
+  <node pkg="ardrone_leapjoy" type="ardrone-leapjoy" name="drone" output="screen" />
 
 </launch>

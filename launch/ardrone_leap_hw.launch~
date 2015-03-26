@@ -8,10 +8,7 @@
   	<remap from="image" to="/ardrone/front/image_raw" />
   </node>
 
-  <!-- drone node -->
-  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">
-  	<param name="controller" value="leap"/>
-  </node>
+  <!-- controller node -->
+  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen" />
 
 </launch>
-

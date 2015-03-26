@@ -2,21 +2,22 @@
 
   <!-- joy node -->
   <node respawn="true" pkg="joy"
-        type="joy_node" name="ardrone_joy" >
+        type="joy_node" name="drone_joypad" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
   </node>
 
-  <!-- autonomy node-->
+  <!-- autonomy node -->
   <include file="$(find ardrone_autonomy)/launch/ardrone.launch" />
 
-  <node pkg="image_view" type="image_view" name="front_camera">
-  	<remap from="image" to="/ardrone/front/image_raw" />
+  <!-- drone node -->
+  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">
+    <param name="controller" value="joypad" />
   </node>
 
-  <!-- controller node -->
-  <node pkg="ardrone_leapjoy" type="drone_controller" name="leapdrone" output="screen">
-    <param name="controller" value="joypad" />
+  <!-- camera node -->
+  <node pkg="image_view" type="image_view" name="front_camera">
+  	<remap from="image" to="/ardrone/front/image_raw" />
   </node>
 
 </launch>

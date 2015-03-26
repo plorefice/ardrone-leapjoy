@@ -2,13 +2,13 @@
 
   <!-- joy node -->
   <node respawn="true" pkg="joy"
-        type="joy_node" name="drone_joypad" >
+        type="joy_node" name="ardrone_joy" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.12" />
   </node>
 
-  <!-- gazebo node -->
-  <include file="$(find cvg_sim_gazebo)/launch/ardrone_testworld.launch" />
+  <!-- autonomy node -->
+  <include file="$(find ardrone_autonomy)/launch/ardrone.launch" />
 
   <!-- drone node -->
   <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">

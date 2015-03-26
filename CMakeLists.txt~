@@ -40,7 +40,6 @@ include_directories(
 add_executable(ardrone_leapjoy
 	src/ardrone-leapjoy.cpp
 	src/leap-interface.cpp
-	src/joypad-interface.cpp
 	src/drone-interface.cpp
 )
 
