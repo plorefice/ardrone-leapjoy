@@ -3,14 +3,14 @@
   <!-- autonomy node -->
   <include file="$(find ardrone_autonomy)/launch/ardrone.launch" />
 
+  <!-- drone node -->
+  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">
+    <param name="controller" value="leap"/>
+  </node>
+
   <!-- camera node -->
   <node pkg="image_view" type="image_view" name="front_camera">
   	<remap from="image" to="/ardrone/front/image_raw" />
-  </node>
-
-  <!-- drone node -->
-  <node pkg="ardrone_leapjoy" type="ardrone_leapjoy" name="drone" output="screen">
-  	<param name="controller" value="leap"/>
   </node>
 
 </launch>
